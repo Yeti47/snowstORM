@@ -19,7 +19,7 @@ public interface IDatabaseReadable extends IDatabaseObj {
 	/**
 	 * Dient der Initialisierung dieses Datenbank-Objektes. Mittels des übergebenen ResultSet-Objektes kann
 	 * auf einen Datensatz aus der zugehörigen Tabelle und dessen Attribute zugegriffen werden, um die Eigenschaften dieses Objekts zu initialisieren.
-	 * Handling von SQLExceptions ist bei der Implementierung nicht zwingend erforderlich, da diese bereits vom DatabaseAccessor beim Lesevorgang angefangen werden.
+	 * Handling von SQLExceptions ist bei der Implementierung nicht zwingend erforderlich, da diese bereits vom DatabaseAccessor beim Lesevorgang abgefangen werden.
 	 * Um dies zu gewährleisten, muss der implementierten Methode lediglich eine entsprechende throws-Deklaration (SQLException) angefügt werden.
 	 * @param rs Das ResultSet, welches Zugriff auf die zur Initialisierung dieses Objekts erforderlichen Tabellen-Attribute ermöglicht.
 	 */
