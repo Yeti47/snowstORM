@@ -48,7 +48,7 @@
   </interface>  
   <class id="6" language="java" name="net.yetibyte.snowstorm.DatabaseAccessor" project="snowstORM" 
     file="/snowstORM/src/net/yetibyte/snowstorm/DatabaseAccessor.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="225" y="148"/>    
+    <position height="-1" width="-1" x="231" y="149"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -57,7 +57,7 @@
   </class>  
   <interface id="7" language="java" name="net.yetibyte.snowstorm.IDatabaseObj" project="snowstORM" 
     file="/snowstORM/src/net/yetibyte/snowstorm/IDatabaseObj.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="558" y="101"/>    
+    <position height="-1" width="-1" x="593" y="120"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      

@@ -221,12 +221,14 @@ public class DatabaseAccessor {
 	 * Es kann auf eine Where-Klausel verzichtet werden, indem für diese null übergeben wird. Es ist jedoch dringend zu beachten, dass dadurch ALLE
 	 * in der zugehörigen Tabelle befindlchen Datensätze aktualisiert und somit überschrieben werden.
 	 * @param dbObj Das Datenbank-Objekt, dessen Attribute in die zugehörige Datenbanktabelle geschrieben werden sollen.
+	 * @param targetAttributes Eine Instanz von DatasetAttributes, welche die zu aktualisierenden Attribute festlegt. Wird null übergeben, wird die von dem Datenbank-Objekt mittels der Methode writeToDatabase
+	 * zur Verfügung gestellte Instanz verwendet.
 	 * @param whereClause Die anzuwendende Where-Klausel. Kann Platzhalter in Form eines ? enthalten, welche dann durch die übergebenen SQL-Parameter ersetzt werden.
 	 * Wird null übergeben, so wird keine Where-Klausel verwendet.
 	 * @param whereParams Ein Array mit Parametern, welche die in der Where-Klausel verwendeten Platzhalter ersetzen. Wird null übergeben, werden keine Parameter verwendet.
 	 * @return Die Anzahl der von dem Update betroffenen Datensätze oder -1 im Falle eines Fehlers.
 	 */
-	public int update(IDatabaseWritable dbObj, String whereClause, String[] whereParams) {
+	public int update(IDatabaseWritable dbObj, DatasetAttributes targetAttributes, String whereClause, String[] whereParams) {
 		
 		if(dbObj == null || _dataSource == null)
 			return -1;
@@ -239,7 +241,7 @@ public class DatabaseAccessor {
 			
 			connection = _dataSource.getConnection();
 			
-		    PreparedStatement statement = prepareUpdate(connection, dbObj, whereClause, whereParams);
+		    PreparedStatement statement = prepareUpdate(connection, dbObj, targetAttributes, whereClause, whereParams);
 		    
 		    if(statement == null)
 		    	return -1;
@@ -264,6 +266,22 @@ public class DatabaseAccessor {
 	    }
 		
 		return rowsAffected;
+		
+	}
+	
+	/**
+	 * Aktualisiert den Datensatz, welcher dem übergebenen Datenbank-Objekt zugeordnet wird und mit der angegebenen Where-Klausel übereinstimmt.
+	 * Es kann auf eine Where-Klausel verzichtet werden, indem für diese null übergeben wird. Es ist jedoch dringend zu beachten, dass dadurch ALLE
+	 * in der zugehörigen Tabelle befindlchen Datensätze aktualisiert und somit überschrieben werden.
+	 * @param dbObj Das Datenbank-Objekt, dessen Attribute in die zugehörige Datenbanktabelle geschrieben werden sollen.
+	 * @param whereClause Die anzuwendende Where-Klausel. Kann Platzhalter in Form eines ? enthalten, welche dann durch die übergebenen SQL-Parameter ersetzt werden.
+	 * Wird null übergeben, so wird keine Where-Klausel verwendet.
+	 * @param whereParams Ein Array mit Parametern, welche die in der Where-Klausel verwendeten Platzhalter ersetzen. Wird null übergeben, werden keine Parameter verwendet.
+	 * @return Die Anzahl der von dem Update betroffenen Datensätze oder -1 im Falle eines Fehlers.
+	 */
+	public int update(IDatabaseWritable dbObj, String whereClause, String[] whereParams) {
+		
+		return update(dbObj, null, whereClause, whereParams);
 		
 	}
 	
@@ -327,12 +345,12 @@ public class DatabaseAccessor {
 		
 	}
 	
-	private PreparedStatement prepareUpdate(Connection connection, IDatabaseWritable dbObj, String whereClause, String[] whereParams) throws SQLException {
+	private PreparedStatement prepareUpdate(Connection connection, IDatabaseWritable dbObj, DatasetAttributes targetAttributes, String whereClause, String[] whereParams) throws SQLException {
 
 		if(connection == null || dbObj == null)
 			return null;
 		
-		DatasetAttributes dsAttributes = dbObj.writeToDatabase();
+		DatasetAttributes dsAttributes = targetAttributes != null ? targetAttributes : dbObj.writeToDatabase();
 		
 		if(dsAttributes == null || dsAttributes.hasInvalidAttributeName())
 			return null;
