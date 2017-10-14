@@ -14,6 +14,9 @@ public class DatabaseAccessor {
 	
 	// Fields
 
+	/**
+	 * The DataSource that provides the Connection.
+	 */
 	private DataSource _dataSource = null;
 	
 	// Constructors
