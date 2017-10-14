@@ -285,6 +285,38 @@ public class DatabaseAccessor {
 		
 	}
 	
+	public int updateSubset(IDatabaseWritable dbObj, Collection<String> attributeNames, String whereClause, String[] whereParams) {
+		
+		if(dbObj != null) {
+			
+			DatasetAttributes dsAttributesOriginal = dbObj.writeToDatabase();
+			
+			if(dsAttributesOriginal != null)
+				return update(dbObj, dsAttributesOriginal.createSubset(attributeNames), whereClause, whereParams);
+			
+		}
+		
+		return -1;
+		
+	}
+	
+	public int updateSubset(IDatabaseWritable dbObj, String[] attributeNames, String whereClause, String[] whereParams) {
+		
+		if(dbObj != null) {
+			
+			DatasetAttributes dsAttributesOriginal = dbObj.writeToDatabase();
+			
+			Collection<String> attributeNamesColl = attributeNames != null ? Arrays.asList(attributeNames) : new ArrayList<String>();
+			
+			if(dsAttributesOriginal != null)
+				return update(dbObj, dsAttributesOriginal.createSubset(attributeNamesColl), whereClause, whereParams);
+			
+		}
+		
+		return -1;
+		
+	}
+	
 	private PreparedStatement prepareInsert(Connection connection, IDatabaseWritable dbObj) throws SQLException {
 
 		if(connection == null || dbObj == null)

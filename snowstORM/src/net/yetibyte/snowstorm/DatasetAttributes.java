@@ -3,6 +3,7 @@ package net.yetibyte.snowstorm;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -87,7 +88,7 @@ public class DatasetAttributes {
 			
 		}
 		
-		return _attributeMap.get(name).toString();
+		return attr.toString();
 		
 	}
 	
@@ -123,6 +124,27 @@ public class DatasetAttributes {
 		}
 		
 		return false;
+		
+	}
+	
+	public DatasetAttributes createSubset(Collection<String> attributeNames) {
+		
+		DatasetAttributes subset = new DatasetAttributes();
+		
+		if(attributeNames != null) {
+			
+			Set<String> namesIntersect = new HashSet<String>(attributeNames);
+			namesIntersect.retainAll(getAttributeNames());
+			
+			for(String attrName : namesIntersect) {
+				
+				subset.setAttribute(attrName, getAttribute(attrName));
+				
+			}
+			
+		}
+		
+		return subset;
 		
 	}
 	
