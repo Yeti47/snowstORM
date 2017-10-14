@@ -3,7 +3,7 @@
   realizations="true" associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
   <interface id="1" language="java" name="net.yetibyte.snowstorm.IDatabaseObjectFactory" project="snowstORM" 
     file="/snowstORM/src/net/yetibyte/snowstorm/IDatabaseObjectFactory.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="123" y="360"/>    
+    <position height="-1" width="-1" x="123" y="374"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -12,7 +12,7 @@
   </interface>  
   <interface id="2" language="java" name="net.yetibyte.snowstorm.IDatasetAttribute" project="snowstORM" 
     file="/snowstORM/src/net/yetibyte/snowstorm/IDatasetAttribute.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="307" y="361"/>    
+    <position height="-1" width="-1" x="307" y="375"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -30,7 +30,7 @@
   </class>  
   <interface id="4" language="java" name="net.yetibyte.snowstorm.IDatabaseReadable" project="snowstORM" 
     file="/snowstORM/src/net/yetibyte/snowstorm/IDatabaseReadable.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="496" y="369"/>    
+    <position height="-1" width="-1" x="496" y="383"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -39,7 +39,7 @@
   </interface>  
   <interface id="5" language="java" name="net.yetibyte.snowstorm.IDatabaseWritable" project="snowstORM" 
     file="/snowstORM/src/net/yetibyte/snowstorm/IDatabaseWritable.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="715" y="362"/>    
+    <position height="-1" width="-1" x="715" y="376"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
