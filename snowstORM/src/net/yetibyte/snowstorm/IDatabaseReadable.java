@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 /**
  * Interface für Objekte, welche durch das Auslesen einer Datenbanktabelle erzeugt werden können.
- * @author Alex
+ * @author Alexander Herrfurth
  *
  */
 public interface IDatabaseReadable extends IDatabaseObj {
