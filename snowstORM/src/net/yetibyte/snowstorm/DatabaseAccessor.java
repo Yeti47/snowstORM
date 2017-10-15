@@ -299,6 +299,14 @@ public class DatabaseAccessor {
 		return objs == null || objs.isEmpty() ? null : objs.get(0);
 		
 	}
+	
+	public <T extends IDatabaseObj> T autofetchSingle(IDatabaseObjectFactory<T> objFactory, String whereClause, String[] sqlParams) {
+		
+		List<T> objs = autofetch(objFactory, whereClause, sqlParams);
+		
+		return objs == null || objs.isEmpty() ? null : objs.get(0);
+		
+	}
 
 	
 	/**
@@ -319,7 +327,53 @@ public class DatabaseAccessor {
 			
 			connection = _dataSource.getConnection();
 			
-		    PreparedStatement statement = prepareInsert(connection, dbObj);
+		    PreparedStatement statement = prepareInsert(connection, dbObj.getTableName(), dbObj.writeToDatabase());
+		    
+		    if(statement == null)
+		    	return false;
+		    
+		    rowsAffected = statement.executeUpdate();
+		    
+		}
+	    catch(Exception e) {
+	    	
+	    	return false;
+	    	
+	    }
+	    finally {
+	    	
+	    	if(connection != null) {
+	    		
+	    		try { connection.close(); }
+	    		catch(Exception e) { }
+	    		
+	    	}
+	    	
+	    }
+		
+		return rowsAffected != 0;
+		
+	}
+	
+	public boolean autoInsert(IDatabaseObj dbObj) {
+		
+		if(dbObj == null || _dataSource == null)
+			return false;
+		
+		Connection connection = null;
+		
+		int rowsAffected = 0;
+		
+		try {
+			
+			connection = _dataSource.getConnection();
+			
+			DatasetAttributes dsAttributes = new DatasetAttributes();
+						
+			if(!dsAttributes.parseAnnotations(dbObj))
+				return false;
+			
+		    PreparedStatement statement = prepareInsert(connection, dbObj.getTableName(), dsAttributes);
 		    
 		    if(statement == null)
 		    	return false;
@@ -372,7 +426,9 @@ public class DatabaseAccessor {
 			
 			connection = _dataSource.getConnection();
 			
-		    PreparedStatement statement = prepareUpdate(connection, dbObj, targetAttributes, whereClause, whereParams);
+			DatasetAttributes dsAttributes = targetAttributes != null ? targetAttributes : dbObj.writeToDatabase();
+			
+		    PreparedStatement statement = prepareUpdate(connection, dbObj.getTableName(), dsAttributes, whereClause, whereParams);
 		    
 		    if(statement == null)
 		    	return -1;
@@ -416,6 +472,94 @@ public class DatabaseAccessor {
 		
 	}
 	
+	public int autoupdate(IDatabaseObj dbObj, DatasetAttributes targetAttributes, String whereClause, String[] whereParams) {
+		
+		if(dbObj == null || _dataSource == null)
+			return -1;
+		
+		Connection connection = null;
+		
+		int rowsAffected = 0;
+		
+		try {
+			
+			connection = _dataSource.getConnection();
+			
+			DatasetAttributes dsAttributes = targetAttributes;
+			
+			if(dsAttributes == null) {
+				
+				dsAttributes = new DatasetAttributes();
+				
+				if(!dsAttributes.parseAnnotations(dbObj))
+					return -1;
+				
+			}
+			
+		    PreparedStatement statement = prepareUpdate(connection, dbObj.getTableName(), dsAttributes, whereClause, whereParams);
+		    
+		    if(statement == null)
+		    	return -1;
+		    
+		    rowsAffected = statement.executeUpdate();
+		    
+		}
+	    catch(Exception e) {
+	    	
+	    	return -1;
+	    	
+	    }
+	    finally {
+	    	
+	    	if(connection != null) {
+	    		
+	    		try { connection.close(); }
+	    		catch(Exception e) { }
+	    		
+	    	}
+	    	
+	    }
+		
+		return rowsAffected;
+		
+	}
+	
+	public int autoupdate(IDatabaseObj dbObj, String whereClause, String[] whereParams) {
+		
+		return autoupdate(dbObj, null, whereClause, whereParams);
+		
+	}
+	
+	public int autoupdate(IDatabaseObj dbObj, String whereClause) {
+		
+		return autoupdate(dbObj, null, whereClause, null);
+		
+	}
+	
+	public int autoupdateSubset(IDatabaseObj dbObj, Collection<String> attributeNames, String whereClause, String[] whereParams) {
+		
+		if(dbObj != null) {
+			
+			DatasetAttributes dsAttributesOriginal = new DatasetAttributes();
+			
+			if(dsAttributesOriginal.parseAnnotations(dbObj)) {
+				
+				return autoupdate(dbObj, dsAttributesOriginal.createSubset(attributeNames), whereClause, whereParams);
+				
+			}
+			
+		}
+		
+		return -1;
+		
+	}
+	
+	public int autoupdateSubset(IDatabaseObj dbObj, String[] attributeNames, String whereClause, String[] whereParams) {
+		
+		return attributeNames != null ? autoupdateSubset(dbObj, Arrays.asList(attributeNames), whereClause, whereParams) : -1;
+		
+	}
+	
 	public int updateSubset(IDatabaseWritable dbObj, Collection<String> attributeNames, String whereClause, String[] whereParams) {
 		
 		if(dbObj != null) {
@@ -448,12 +592,12 @@ public class DatabaseAccessor {
 		
 	}
 	
-	private PreparedStatement prepareInsert(Connection connection, IDatabaseWritable dbObj) throws SQLException {
+	private PreparedStatement prepareInsert(Connection connection, String tableName, DatasetAttributes dsAttributes) throws SQLException {
 
-		if(connection == null || dbObj == null)
+		if(connection == null || tableName == null || dsAttributes == null)
 			return null;
 		
-		DatasetAttributes dsAttributes = dbObj.writeToDatabase();
+		//DatasetAttributes dsAttributes = dbObj.writeToDatabase();
 		
 		if(dsAttributes == null || dsAttributes.hasInvalidAttributeName())
 			return null;
@@ -491,7 +635,7 @@ public class DatabaseAccessor {
 		
 		StringBuilder builder = new StringBuilder();
 		
-		builder.append("INSERT INTO " + dbObj.getTableName() + " (");
+		builder.append("INSERT INTO " + tableName + " (");
 		builder.append(columnBuilder);
 		builder.append(") VALUES (");
 		builder.append(valueBuilder);
@@ -508,12 +652,12 @@ public class DatabaseAccessor {
 		
 	}
 	
-	private PreparedStatement prepareUpdate(Connection connection, IDatabaseWritable dbObj, DatasetAttributes targetAttributes, String whereClause, String[] whereParams) throws SQLException {
+	private PreparedStatement prepareUpdate(Connection connection, String tableName, DatasetAttributes dsAttributes, String whereClause, String[] whereParams) throws SQLException {
 
-		if(connection == null || dbObj == null)
+		if(connection == null || tableName == null)
 			return null;
 		
-		DatasetAttributes dsAttributes = targetAttributes != null ? targetAttributes : dbObj.writeToDatabase();
+		// DatasetAttributes dsAttributes = targetAttributes != null ? targetAttributes : dbObj.writeToDatabase();
 		
 		if(dsAttributes == null || dsAttributes.hasInvalidAttributeName())
 			return null;
@@ -546,7 +690,7 @@ public class DatabaseAccessor {
 		
 		StringBuilder builder = new StringBuilder();
 		
-		builder.append("UPDATE " + dbObj.getTableName() + " ");
+		builder.append("UPDATE " + tableName + " ");
 		builder.append(setBuilder);
 
 		if(whereClause != null) {
