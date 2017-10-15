@@ -21,6 +21,8 @@ public class DatabaseAccessor {
 	 */
 	private DataSource _dataSource = null;
 	
+	private boolean _allowUpdateWithoutWhere = true;
+	
 	// Constructors
 	
 	/**
@@ -41,6 +43,16 @@ public class DatabaseAccessor {
 	
 	public void setDataSource(DataSource dataSource) {
 		_dataSource = dataSource;	
+	}
+	
+	public void allowUpdateWithoutWhere(boolean flag) {
+		
+		_allowUpdateWithoutWhere = flag;
+		
+	}
+	
+	public boolean allowsUpdateWithoutWhere() {
+		return _allowUpdateWithoutWhere;
 	}
 	
 	// Methods
@@ -415,7 +427,7 @@ public class DatabaseAccessor {
 	 */
 	public int update(IDatabaseWritable dbObj, DatasetAttributes targetAttributes, String whereClause, String[] whereParams) {
 		
-		if(dbObj == null || _dataSource == null)
+		if(dbObj == null || _dataSource == null || (!_allowUpdateWithoutWhere && whereClause == null))
 			return -1;
 		
 		Connection connection = null;
@@ -474,7 +486,7 @@ public class DatabaseAccessor {
 	
 	public int autoupdate(IDatabaseObj dbObj, DatasetAttributes targetAttributes, String whereClause, String[] whereParams) {
 		
-		if(dbObj == null || _dataSource == null)
+		if(dbObj == null || _dataSource == null || (!_allowUpdateWithoutWhere && whereClause == null))
 			return -1;
 		
 		Connection connection = null;
@@ -538,7 +550,9 @@ public class DatabaseAccessor {
 	
 	public int autoupdateSubset(IDatabaseObj dbObj, Collection<String> attributeNames, String whereClause, String[] whereParams) {
 		
-		if(dbObj != null) {
+		boolean updateAllowed = _allowUpdateWithoutWhere || whereClause != null;
+		
+		if(dbObj != null && updateAllowed) {
 			
 			DatasetAttributes dsAttributesOriginal = new DatasetAttributes();
 			
@@ -562,7 +576,9 @@ public class DatabaseAccessor {
 	
 	public int updateSubset(IDatabaseWritable dbObj, Collection<String> attributeNames, String whereClause, String[] whereParams) {
 		
-		if(dbObj != null) {
+		boolean updateAllowed = _allowUpdateWithoutWhere || whereClause != null;
+		
+		if(dbObj != null && updateAllowed) {
 			
 			DatasetAttributes dsAttributesOriginal = dbObj.writeToDatabase();
 			
@@ -577,7 +593,9 @@ public class DatabaseAccessor {
 	
 	public int updateSubset(IDatabaseWritable dbObj, String[] attributeNames, String whereClause, String[] whereParams) {
 		
-		if(dbObj != null) {
+		boolean updateAllowed = _allowUpdateWithoutWhere || whereClause != null;
+		
+		if(dbObj != null && updateAllowed) {
 			
 			DatasetAttributes dsAttributesOriginal = dbObj.writeToDatabase();
 			
