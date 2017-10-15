@@ -66,7 +66,7 @@
   </interface>  
   <class id="8" language="java" name="net.yetibyte.snowstorm.ReflectionUtility" project="snowstORM" 
     file="/snowstORM/src/net/yetibyte/snowstorm/ReflectionUtility.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="221" y="548"/>    
+    <position height="-1" width="-1" x="221" y="570"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      

@@ -22,6 +22,7 @@ public class DatabaseAccessor {
 	private DataSource _dataSource = null;
 	
 	private boolean _allowUpdateWithoutWhere = true;
+	private boolean _allowDeleteWithoutWhere = false;
 	
 	// Constructors
 	
@@ -46,13 +47,19 @@ public class DatabaseAccessor {
 	}
 	
 	public void allowUpdateWithoutWhere(boolean flag) {
-		
 		_allowUpdateWithoutWhere = flag;
-		
 	}
 	
 	public boolean allowsUpdateWithoutWhere() {
 		return _allowUpdateWithoutWhere;
+	}
+	
+	public void allowDeleteWithoutWhere(boolean flag) {
+		_allowDeleteWithoutWhere = flag;
+	}
+	
+	public boolean allowsDeleteWithoutWhere() {
+		return _allowDeleteWithoutWhere;
 	}
 	
 	// Methods
@@ -607,6 +614,58 @@ public class DatabaseAccessor {
 		}
 		
 		return -1;
+		
+	}
+	
+	public int delete(String tableName, String whereClause, String[] whereParams) {
+		
+		boolean allowDelete = _allowDeleteWithoutWhere || whereClause != null;
+		
+		if(!allowDelete || _dataSource == null || tableName == null)
+			return -1;
+		
+		Connection connection = null;
+		
+		int rowsAffected = 0;
+		
+		try {
+			
+			connection = _dataSource.getConnection();
+			
+			String sql = "DELETE FROM " + tableName + (whereClause != null ? (" WHERE " + whereClause) : "");
+			
+		    PreparedStatement statement = connection.prepareStatement(sql);
+		    
+		    if(statement == null)
+		    	return -1;
+		    
+		    if(whereClause != null && whereParams != null) {
+				
+				for(int j = 0; j < whereParams.length; j++)
+					statement.setString(j+1, whereParams[j]);
+				
+			}
+		    
+		    rowsAffected = statement.executeUpdate();
+		    
+		}
+	    catch(Exception e) {
+	    	
+	    	return -1;
+	    	
+	    }
+	    finally {
+	    	
+	    	if(connection != null) {
+	    		
+	    		try { connection.close(); }
+	    		catch(Exception e) { }
+	    		
+	    	}
+	    	
+	    }
+		
+		return rowsAffected;
 		
 	}
 	
