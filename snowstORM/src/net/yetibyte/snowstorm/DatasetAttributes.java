@@ -1,5 +1,6 @@
 package net.yetibyte.snowstorm;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,7 +18,7 @@ public class DatasetAttributes {
 	
 	// Constants
 	
-	private final static char[] UNSAFE_ATTR_NAME_CHARS = { ' ', '=', '/', '\\', '\'', '"', ';' ,'´', '`'};  
+	private final static char[] UNSAFE_ATTR_NAME_CHARS = { ' ', '=', '/', '\\', '\'', '"', ';' ,'´', '`', ',', '.' };  
 	
 	// Fields
 	
@@ -145,6 +146,42 @@ public class DatasetAttributes {
 		}
 		
 		return subset;
+		
+	}
+	
+	public boolean parseAnnotations(IDatabaseObj dbObj) {
+		
+		if(dbObj == null)
+			return false;
+		
+		_attributeMap.clear();
+		
+		for(Field field : ReflectionUtility.getFieldsRecursive(dbObj.getClass())) {
+			
+			if(field.isAnnotationPresent(TableAttribute.class)) {
+				
+				TableAttribute attr = field.getAnnotation(TableAttribute.class);
+				
+				if(!attr.readonly()) {
+					
+					boolean wasAccessible = field.isAccessible();
+					field.setAccessible(true);
+					
+					try {
+						_attributeMap.put(attr.column(), field.get(dbObj));
+					} catch (IllegalArgumentException | IllegalAccessException e) {
+						return false;
+					}
+					
+					field.setAccessible(wasAccessible);
+					
+				}
+				
+			}
+			
+		}
+		
+		return true;
 		
 	}
 	

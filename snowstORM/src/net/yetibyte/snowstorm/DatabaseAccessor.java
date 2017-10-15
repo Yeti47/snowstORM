@@ -2,6 +2,8 @@ package net.yetibyte.snowstorm;
 
 import java.util.*;
 import javax.sql.DataSource;
+
+import java.lang.reflect.Field;
 import java.sql.*;
 
 /**
@@ -69,7 +71,10 @@ public class DatabaseAccessor {
 			
 			String[] colNames = tempObj.getColumnNames();
 			
-			StringBuilder colBuilder = new StringBuilder(colNames == null || colNames.length > 0 ? "" : "*");
+			if(colNames == null)
+				colNames = new String[0];
+			
+			StringBuilder colBuilder = new StringBuilder(colNames.length > 0 ? "" : "*");
 			
 			for(int i = 0; i < colNames.length; i++) {
 				
@@ -149,6 +154,132 @@ public class DatabaseAccessor {
 	public <T extends IDatabaseReadable> List<T> fetch(IDatabaseObjectFactory<T> objFactory) {
 		
 		return fetch(objFactory, null, null);
+		
+	}
+	
+	public <T extends IDatabaseObj> List<T> autofetch(IDatabaseObjectFactory<T> objFactory, String whereClause, String[] sqlParams) {
+		
+		if(objFactory == null || _dataSource == null)
+			return null;
+		
+		List<T> results = new ArrayList<T>();
+		
+		Connection connection = null;
+		
+		try {
+
+			connection = _dataSource.getConnection();
+		    
+			T tempObj = objFactory.createInstance();
+			
+			Collection<Field> annotatedFields = ReflectionUtility.getFieldsWithAnnotation(tempObj.getClass(), TableAttribute.class);
+			
+			Map<String, Field> fieldMap = new HashMap<String, Field>();
+			
+			for(Field field : annotatedFields) {
+				
+				TableAttribute annotation = field.getAnnotation(TableAttribute.class);
+				
+				if(DatasetAttributes.isSafeAttributeName(annotation.column())) {
+					
+					fieldMap.put(annotation.column(), field);
+					
+				}
+				
+			}
+			
+			
+			StringBuilder colBuilder = new StringBuilder();
+			
+			Set<String> attrNames = fieldMap.keySet();
+			
+			if(attrNames.isEmpty())
+				return null;
+			
+			int currAttrIndex = 0;
+			
+			for(String attr : attrNames) {
+				
+				colBuilder.append(attr);
+				
+				if(currAttrIndex < attrNames.size()-1)
+					colBuilder.append(", ");
+				
+				currAttrIndex++;
+				
+			}
+			
+			String sql = "SELECT " + colBuilder.toString() + " FROM " + tempObj.getTableName() + " " + (whereClause != null ? "WHERE " + whereClause : "");
+			
+		    PreparedStatement statement = connection.prepareStatement(sql);
+		    
+		    if(whereClause != null && sqlParams != null) {
+		    	
+		    	for(int i = 0; i < sqlParams.length; i++)
+			    	statement.setString(i+1, sqlParams[i]);
+		    	
+		    }
+		    
+		    ResultSet rs = statement.executeQuery();
+		    
+		    while(rs.next()) {
+		    	
+		    	tempObj = objFactory.createInstance();
+		    	
+		    	for(String attrName : attrNames) {
+		    		
+		    		Field field = fieldMap.get(attrName);
+		    		
+		    		boolean wasAccessible = field.isAccessible();
+    				field.setAccessible(true);
+    				
+    				if(IDatasetAttribute.class.isAssignableFrom(field.getType())) {
+    					
+    					IDatasetAttribute fieldValue = (IDatasetAttribute)field.getType().newInstance();
+    					fieldValue.deserializeByAttributeValue(rs.getString(attrName));
+    					
+    				}
+    				else
+    					field.set(tempObj, rs.getObject(attrName));
+    				
+    				field.setAccessible(wasAccessible);
+		    		
+		    	}
+		    	
+		    	results.add(tempObj);
+		    	
+		    }
+		    
+		}
+	    catch(Exception e) {
+	    	
+	    	return null;
+	    	
+	    }
+	    finally {
+	    	
+	    	if(connection != null) {
+	    		
+	    		try { connection.close(); }
+	    		catch(Exception e) { }
+	    		
+	    	}
+	    	
+	    }
+		
+		return results;
+		
+	}
+	
+	public <T extends IDatabaseObj> List<T> autofetch(IDatabaseObjectFactory<T> objFactory, String whereClause) {
+		
+		return autofetch(objFactory, whereClause, null);
+		
+	}
+	
+	public <T extends IDatabaseObj> List<T> autofetch(IDatabaseObjectFactory<T> objFactory) {
+		
+		return autofetch(objFactory, null, null);
 		
 	}
 	

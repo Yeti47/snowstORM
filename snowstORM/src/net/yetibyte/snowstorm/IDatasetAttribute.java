@@ -14,5 +14,7 @@ public interface IDatasetAttribute {
 	 * @return Eine Darstellung dieses Objektes als String.
 	 */
 	String attributeValue();
+	
+	void deserializeByAttributeValue(String attributeValue);
 
 }

@@ -7,7 +7,7 @@ package net.yetibyte.snowstorm;
  * @param <T> Der Typ des Datenbank-Objektes.
  */
 @FunctionalInterface
-public interface IDatabaseObjectFactory<T extends IDatabaseReadable> {
+public interface IDatabaseObjectFactory<T extends IDatabaseObj> {
 	
 	/**
 	 * Erstellt eine Instanz des Datenbank-Objekts, welches dann nach dem Verbindungsaufbau mit einer Datenbank 
