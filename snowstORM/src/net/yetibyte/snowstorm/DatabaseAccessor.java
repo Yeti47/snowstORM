@@ -831,6 +831,9 @@ public class DatabaseAccessor {
 			String joinClause = " ";
 			Collection<Join> joins = tempObj.join();
 			
+			if(joins == null)
+				return null;
+			
 			for(Join join : joins) {
 				
 				if(!join.isValid())
