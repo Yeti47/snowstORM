@@ -794,5 +794,93 @@ public class DatabaseAccessor {
 		
 	}
 	
+	public <T extends IJoinedDatabaseObj> List<T> fetchJoined(IDatabaseObjectFactory<T> objFactory, String whereClause, String[] sqlParams) {
+		
+		if(objFactory == null || _dataSource == null)
+			return null;
+		
+		List<T> results = new ArrayList<T>();
+		
+		Connection connection = null;
+		
+		try {
+
+			connection = _dataSource.getConnection();
+		    
+			T tempObj = objFactory.createInstance();
+			
+			String[] colNames = tempObj.getColumnNames();
+			
+			if(colNames == null)
+				colNames = new String[0];
+			
+			StringBuilder colBuilder = new StringBuilder(colNames.length > 0 ? "" : "*");
+			
+			for(int i = 0; i < colNames.length; i++) {
+				
+				if(!DatasetAttributes.isSafeAttributeName(colNames[i]))
+					return null;
+				
+				colBuilder.append(colNames[i]);
+				
+				if(i < colNames.length-1)
+					colBuilder.append(", ");
+				
+			}
+			
+			String joinClause = " ";
+			Collection<Join> joins = tempObj.join();
+			
+			for(Join join : joins) {
+				
+				if(!join.isValid())
+					return null;
+				
+				joinClause += join.getClause() + " ";
+				
+			}
+			
+			String sql = "SELECT " + colBuilder.toString() + " FROM " + tempObj.getTableName() + joinClause + " " + (whereClause != null ? "WHERE " + whereClause : "");
+			
+		    PreparedStatement statement = connection.prepareStatement(sql);
+		    
+		    if(whereClause != null && sqlParams != null) {
+		    	
+		    	for(int i = 0; i < sqlParams.length; i++)
+			    	statement.setString(i+1, sqlParams[i]);
+		    	
+		    }
+		    
+		    ResultSet rs = statement.executeQuery();
+		    
+		    while(rs.next()) {
+		    	
+		    	tempObj = objFactory.createInstance();
+		    	tempObj.readFromDatabase(rs);
+		    	results.add(tempObj);
+		    	
+		    }
+		    
+		}
+	    catch(Exception e) {
+	    	
+	    	return null;
+	    	
+	    }
+	    finally {
+	    	
+	    	if(connection != null) {
+	    		
+	    		try { connection.close(); }
+	    		catch(Exception e) { }
+	    		
+	    	}
+	    	
+	    }
+		
+		return results;
+		
+	}
+	
 
 }
