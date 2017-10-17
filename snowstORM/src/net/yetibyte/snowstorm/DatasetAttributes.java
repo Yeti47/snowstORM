@@ -18,7 +18,7 @@ public class DatasetAttributes {
 	
 	// Constants
 	
-	private final static char[] UNSAFE_ATTR_NAME_CHARS = { ' ', '=', '/', '\\', '\'', '"', ';' ,'´', '`', ',', '*' };  
+	private final static char[] UNSAFE_ATTR_NAME_CHARS = { '=', '/', '\\', '\'', '"', ';' ,'´', '`', ',', '*' };  
 	
 	// Fields
 	
