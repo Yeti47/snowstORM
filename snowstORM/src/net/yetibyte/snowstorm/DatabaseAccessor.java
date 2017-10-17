@@ -885,5 +885,25 @@ public class DatabaseAccessor {
 		
 	}
 	
+	public <T extends IJoinedDatabaseObj> List<T> fetchJoined(IDatabaseObjectFactory<T> objFactory, String whereClause) {
+		
+		return fetchJoined(objFactory, whereClause, null);
+		
+	}
+	
+	public <T extends IJoinedDatabaseObj> List<T> fetchJoined(IDatabaseObjectFactory<T> objFactory) {
+		
+		return fetchJoined(objFactory, null, null);
+		
+	}
+	
+	public <T extends IJoinedDatabaseObj> T fetchJoinedSingle(IDatabaseObjectFactory<T> objFactory, String whereClause, String[] sqlParams) {
+		
+		List<T> objs = fetchJoined(objFactory, whereClause, sqlParams);
+		
+		return objs == null || objs.isEmpty() ? null : objs.get(0);
+		
+	}
+	
 
 }
