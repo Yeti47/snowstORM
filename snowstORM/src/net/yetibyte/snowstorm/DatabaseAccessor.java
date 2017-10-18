@@ -24,6 +24,8 @@ public class DatabaseAccessor {
 	private boolean _allowUpdateWithoutWhere = true;
 	private boolean _allowDeleteWithoutWhere = false;
 	
+	private String _lastQueryInfo = null;
+	
 	// Constructors
 	
 	/**
@@ -37,6 +39,10 @@ public class DatabaseAccessor {
 	}
 	
 	// Getters / Setters
+	
+	public String getLastQueryInfo() {
+		return _lastQueryInfo;
+	}
 	
 	public DataSource getDataSource() {
 		return _dataSource;
@@ -119,6 +125,8 @@ public class DatabaseAccessor {
 		    }
 		    
 		    ResultSet rs = statement.executeQuery();
+		    
+		    _lastQueryInfo = statement.toString();
 		    
 		    while(rs.next()) {
 		    	
@@ -241,6 +249,8 @@ public class DatabaseAccessor {
 		    
 		    ResultSet rs = statement.executeQuery();
 		    
+		    _lastQueryInfo = statement.toString();
+		    
 		    while(rs.next()) {
 		    	
 		    	tempObj = objFactory.createInstance();
@@ -353,6 +363,8 @@ public class DatabaseAccessor {
 		    
 		    rowsAffected = statement.executeUpdate();
 		    
+		    _lastQueryInfo = statement.toString();
+		    
 		}
 	    catch(Exception e) {
 	    	
@@ -398,6 +410,8 @@ public class DatabaseAccessor {
 		    	return false;
 		    
 		    rowsAffected = statement.executeUpdate();
+		    
+		    _lastQueryInfo = statement.toString();
 		    
 		}
 	    catch(Exception e) {
@@ -453,6 +467,8 @@ public class DatabaseAccessor {
 		    	return -1;
 		    
 		    rowsAffected = statement.executeUpdate();
+		    
+		    _lastQueryInfo = statement.toString();
 		    
 		}
 	    catch(Exception e) {
@@ -521,6 +537,8 @@ public class DatabaseAccessor {
 		    	return -1;
 		    
 		    rowsAffected = statement.executeUpdate();
+		    
+		    _lastQueryInfo = statement.toString();
 		    
 		}
 	    catch(Exception e) {
@@ -648,6 +666,8 @@ public class DatabaseAccessor {
 		    
 		    rowsAffected = statement.executeUpdate();
 		    
+		    _lastQueryInfo = statement.toString();
+		    
 		}
 	    catch(Exception e) {
 	    	
@@ -688,7 +708,7 @@ public class DatabaseAccessor {
 		
 		Collection<String> attrNames = dsAttributes.getAttributeNames();
 		
-		List<String> attrValues = new ArrayList<String>();
+		List<Object> attrValues = new ArrayList<Object>();
 		
 		StringBuilder columnBuilder = new StringBuilder();
 		StringBuilder valueBuilder = new StringBuilder();
@@ -723,7 +743,7 @@ public class DatabaseAccessor {
 		PreparedStatement statement = connection.prepareStatement(sql);
 
 		for(int i = 0; i < attrValues.size(); i++)
-			statement.setString(i+1, attrValues.get(i));
+			statement.setObject(i+1, attrValues.get(i));
 				
 		return statement;
 		
@@ -748,7 +768,7 @@ public class DatabaseAccessor {
 		
 		Collection<String> attrNames = dsAttributes.getAttributeNames();
 		
-		List<String> attrValues = new ArrayList<String>();
+		List<Object> attrValues = new ArrayList<Object>();
 		
 		StringBuilder setBuilder = new StringBuilder();
 		setBuilder.append("SET ");
@@ -781,7 +801,7 @@ public class DatabaseAccessor {
 		PreparedStatement statement = connection.prepareStatement(sql);
 		
 		for(int i = 0; i < attrCount; i++)
-			statement.setString(i+1, attrValues.get(i));
+			statement.setObject(i+1, attrValues.get(i));
 		
 		if(whereClause != null && whereParams != null) {
 			
@@ -855,6 +875,8 @@ public class DatabaseAccessor {
 		    }
 		    
 		    ResultSet rs = statement.executeQuery();
+		    
+		    _lastQueryInfo = statement.toString();
 		    
 		    while(rs.next()) {
 		    	

@@ -75,7 +75,7 @@ public class DatasetAttributes {
 		
 	}
 	
-	public String readAttribute(String name) {
+	public Object readAttribute(String name) {
 		
 		Object attr = _attributeMap.get(name);
 		
@@ -89,7 +89,7 @@ public class DatasetAttributes {
 			
 		}
 		
-		return attr.toString();
+		return attr;
 		
 	}
 	
