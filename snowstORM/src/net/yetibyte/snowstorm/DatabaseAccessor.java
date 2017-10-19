@@ -23,7 +23,8 @@ public class DatabaseAccessor {
 	
 	private boolean _allowUpdateWithoutWhere = true;
 	private boolean _allowDeleteWithoutWhere = false;
-	
+	private boolean _isSelectDistinct = false;
+
 	private String _lastQueryInfo = null;
 	
 	// Constructors
@@ -39,6 +40,14 @@ public class DatabaseAccessor {
 	}
 	
 	// Getters / Setters
+	
+	public boolean isSelectDistinct() {
+		return _isSelectDistinct;
+	}
+
+	public void setSelectDistinct(boolean isSelectDistinct) {
+		_isSelectDistinct = isSelectDistinct;
+	}
 	
 	public String getLastQueryInfo() {
 		return _lastQueryInfo;
@@ -113,7 +122,7 @@ public class DatabaseAccessor {
 				
 			}
 			
-			String sql = "SELECT " + colBuilder.toString() + " FROM " + tempObj.getTableName() + " " + (whereClause != null ? "WHERE " + whereClause : "");
+			String sql = "SELECT " + distinctString() + colBuilder.toString() + " FROM " + tempObj.getTableName() + " " + (whereClause != null ? "WHERE " + whereClause : "");
 			
 		    PreparedStatement statement = connection.prepareStatement(sql);
 		    
@@ -236,7 +245,7 @@ public class DatabaseAccessor {
 				
 			}
 			
-			String sql = "SELECT " + colBuilder.toString() + " FROM " + tempObj.getTableName() + " " + (whereClause != null ? "WHERE " + whereClause : "");
+			String sql = "SELECT " + distinctString() + colBuilder.toString() + " FROM " + tempObj.getTableName() + " " + (whereClause != null ? "WHERE " + whereClause : "");
 			
 		    PreparedStatement statement = connection.prepareStatement(sql);
 		    
@@ -863,7 +872,7 @@ public class DatabaseAccessor {
 				
 			}
 			
-			String sql = "SELECT " + colBuilder.toString() + " FROM " + tempObj.getTableName() + joinClause + " " + (whereClause != null ? "WHERE " + whereClause : "");
+			String sql = "SELECT " + distinctString() + colBuilder.toString() + " FROM " + tempObj.getTableName() + joinClause + " " + (whereClause != null ? "WHERE " + whereClause : "");
 			
 		    PreparedStatement statement = connection.prepareStatement(sql);
 		    
@@ -924,6 +933,12 @@ public class DatabaseAccessor {
 		List<T> objs = fetchJoined(objFactory, whereClause, sqlParams);
 		
 		return objs == null || objs.isEmpty() ? null : objs.get(0);
+		
+	}
+	
+	private String distinctString() {
+		
+		return _isSelectDistinct ? " DISTINCT " : "";
 		
 	}
 	
